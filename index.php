@@ -28,8 +28,6 @@ switch ($id) {
 print( json_encode($return) );
 
 
-
-
 // $exec = "timeout 10s /usr/local/bin/ffprobe -v quiet -print_format json -show_format -show_streams -i " . $stream . " 2>&1";
 // $temp = shell_exec ( $exec );
 // $json = json_decode( $temp );
