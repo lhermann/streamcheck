@@ -3,20 +3,22 @@
  * DUMMY
  */
 $path = explode('/', $_SERVER['PATH_INFO']);
-$id = end($path);
+$streamid = end($path);
 
 class Check {
+    public $streamid;
+    public $last_check;
     public $live = false;
-    public $last_check = 0;
 
-    function __construct() {
+    function __construct($streamid = "all") {
+        $this->streamid = $streamid;
         $this->last_check = time();
     }
 }
 
-$return = new Check();
+$return = new Check($streamid);
 
-switch ($id) {
+switch ($streamid) {
     case 'joelmedia':
         $return->live = true;
         break;
