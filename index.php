@@ -2,7 +2,7 @@
 /**
  * DUMMY
  */
-$path = explode('/', $_SERVER['PATH_INFO']);
+$path = explode('/', $_SERVER['QUERY_STRING']);
 $streamid = end($path);
 
 class Check {
