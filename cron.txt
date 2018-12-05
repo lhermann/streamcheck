@@ -1,0 +1,1 @@
+*/5 * * * * joelmedia php %HOME/streamcheck/index.php

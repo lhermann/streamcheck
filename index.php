@@ -1,42 +1,13 @@
 <?php
-/**
- * DUMMY
- */
-$path = explode('/', $_SERVER['QUERY_STRING']);
-$streamid = end($path);
+require_once("inc/Store.php");
 
-class Check {
-    public $streamid;
-    public $last_check;
-    public $live = false;
+$query = explode('/', $_SERVER['QUERY_STRING']);
+$streamid = end($query);
 
-    function __construct($streamid = "all") {
-        $this->streamid = $streamid;
-        $this->last_check = time();
-    }
+if(Store::file_exists($streamid)) {
+    header('Content-Type: application/json');
+    print(file_get_contents(Store::file($streamid)));
+} else {
+    http_response_code(404);
+    print("404");
 }
-
-$return = new Check($streamid);
-
-switch ($streamid) {
-    case 'joelmedia':
-        $return->live = true;
-        break;
-    default:
-        # code...
-        break;
-}
-
-header('Content-Type: application/json');
-print( json_encode($return) );
-
-
-// $exec = "timeout 10s /usr/local/bin/ffprobe -v quiet -print_format json -show_format -show_streams -i " . $stream . " 2>&1";
-// $temp = shell_exec ( $exec );
-// $json = json_decode( $temp );
-
-// timeout 10s ffprobe -v quiet -print_format json -show_format -show_streams -i https://streamer1.streamhost.org:443/salive/joelmediatv/playlist.m3u8
-// timeout 10s ffprobe -v quiet -print_format json -show_format -show_streams -i rtmp://streamer1.streamhost.org/salive/joelmediatv
-// timeout 10s ffprobe -v quiet -print_format json -show_format -show_streams -i rtmp://live.stream.joelmediatv.de:1935/live/joelmedia
-// timeout 10s ffprobe -v quiet -print_format json -show_format -show_streams -i https://streamer1.streamhost.org/salive/lctvde/playlist.m3u8
-// timeout 10s ffprobe -v quiet -print_format json -show_format -show_streams -i rtmp://streamer1.streamhost.org/salive/lctvde
