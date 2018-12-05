@@ -15,7 +15,7 @@ class Store {
     }
 
     public static function file($name = null) {
-        return self::$dir . ($name ?: "misc") . ".json";
+        return dirname(__DIR__) . '/' . self::$dir . ($name ?: "misc") . ".json";
     }
 
     public static function file_exists($name) {

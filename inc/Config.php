@@ -5,7 +5,7 @@ class Config {
 
     public static function get($stream = null) {
         $config = json_decode(
-            file_get_contents(self::$file)
+            file_get_contents(dirname(__DIR__) . '/' . self::$file)
         );
 
         if($stream && property_exists($config, $stream)) {

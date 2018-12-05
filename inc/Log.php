@@ -4,7 +4,7 @@ class Log {
     private static $dir = "log/";
 
     public static function file($name = "check") {
-        return self::$dir . $name . ".log";
+        return dirname(__DIR__) . '/' . self::$dir . $name . ".log";
     }
 
     public static function write($string) {
