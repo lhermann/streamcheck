@@ -15,11 +15,31 @@ class Store {
     }
 
     public static function file($name = null) {
-        return dirname(__DIR__) . '/' . self::$dir . ($name ?: "misc") . ".json";
+        return dirname(__DIR__) . '/' . self::$dir .
+            ($name ?: "misc") .
+            (strpos($name, ".json") ? "" : ".json");
     }
 
     public static function file_exists($name) {
         return file_exists(self::file($name));
+    }
+
+    public static function read_all() {
+        $dir = array_filter(
+            scandir(dirname(__DIR__) . '/' . self::$dir),
+            function($item) {
+                return(strpos($item, ".json"));
+            }
+        );
+        $array = array();
+        foreach ($dir as $file) {
+            if(self::file_exists($file)) {
+                $array[] = json_decode(
+                    file_get_contents(self::file($file))
+                );
+            }
+        }
+        return $array;
     }
 
     public function write() {
