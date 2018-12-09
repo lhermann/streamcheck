@@ -7,7 +7,7 @@ class Store {
     public function __construct($id = null) {
         $this->id = $id ?: "misc";
         $obj = $this->read();
-        $this->updated = time();
+        $this->updated = date('c');
         $this->live = $obj->live ?: false;
         $this->stream_key = $obj->stream_key ?: [];
         $this->stream_url = $obj->stream_url ?: [];
