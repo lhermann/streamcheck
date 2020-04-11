@@ -1,0 +1,11 @@
+{
+    "joelmedia": {
+        "rtmp": "rtmp://streamer1.streamhost.org/salive/joelmediatv",
+        "hls": "https://streamer1.streamhost.org:443/salive/joelmediatv/playlist.m3u8",
+        "youtube": ""
+    },
+    "lightchannel": {
+        "rtmp": "rtmp://streamer1.streamhost.org/salive/lctvde",
+        "hls": "https://streamer1.streamhost.org/salive/lctvde/playlist.m3u8"
+    }
+}

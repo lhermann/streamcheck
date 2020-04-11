@@ -1,78 +1,103 @@
 <?php
 
+/**
+ * Simple value object
+ */
+class Value {
+  public $value, $created, $updated;
+
+  public function __construct(
+    $value = null,
+    $created = null,
+    $updated = null
+  ) {
+    $this->value = $value;
+    $this->created = $created ?: date('c');
+    $this->updated = $updated ?: date('c');
+  }
+
+  public function set ($value) {
+    $this->value = $value;
+    $this->updated = date('c');
+  }
+
+  public function get () {
+    return $this;
+  }
+}
+
+/**
+ * Simple key-value file storrage
+ */
 class Store {
-    private static $dir = "store/";
-    public $id, $updated, $live, $streams;
+  private const DIR = __DIR__ . '/../store/';
 
-    public function __construct($id = null) {
-        $this->id = $id ?: "misc";
-        $obj = $this->read();
-        $this->updated = date('c');
-        $this->live = $obj->live ?: false;
-        $this->stream_key = $obj->stream_key ?: [];
-        $this->stream_url = $obj->stream_url ?: [];
-        $this->stream_live = $obj->stream_live ?: [];
+  public const TOKENS = 'tokens';
+  public const STATUS = 'status';
+  public const MISC = 'misc';
+
+  private $namespace, $store = null;
+
+  public function __construct($namespace = self::MISC) {
+    $this->namespace = $namespace;
+    $this->read();
+  }
+
+  /*
+   * Public Functions
+   */
+  public function getAll () {
+    return $this->store;
+  }
+
+  public function get($key) {
+    if (isset($this->store[$key])) {
+      return $this->store[$key];
+    } else {
+      $value = new Value();
+      $this->store[$key] = $value;
+      return $value;
     }
+  }
 
-    public static function file($name = null) {
-        return dirname(__DIR__) . '/' . self::$dir .
-            ($name ?: "misc") .
-            (strpos($name, ".json") ? "" : ".json");
+  public function getValue($key) {
+    return $this->get($key)->value;
+  }
+
+  public function set($key, $value) {
+    $instance = $this->get($key);
+    $instance->set($value);
+    $this->write();
+  }
+
+  public function clear () {
+    $this->store = [];
+  }
+
+  /*
+   * Private Functions
+   */
+  private function read() {
+    $file = $this->filename();
+    if(file_exists($file)) {
+      $entries = json_decode(file_get_contents($file), true);
+      $this->store = array_map(function ($item) {
+        return new Value($item['value'], $item['created'], $item['updated']);
+      }, $entries);
+    } else {
+      $this->store = [];
+      $this->write();
     }
+  }
 
-    public static function file_exists($name) {
-        return file_exists(self::file($name));
-    }
+  private function write() {
+    return file_put_contents(
+      $this->filename(),
+      json_encode($this->store)
+    );
+  }
 
-    public static function read_all() {
-        $dir = array_filter(
-            scandir(dirname(__DIR__) . '/' . self::$dir),
-            function($item) {
-                return(strpos($item, ".json"));
-            }
-        );
-        $array = array();
-        foreach ($dir as $file) {
-            if(self::file_exists($file)) {
-                $array[] = json_decode(
-                    file_get_contents(self::file($file))
-                );
-            }
-        }
-        return $array;
-    }
-
-    public function write() {
-        return file_put_contents(
-            self::file($this->id),
-            json_encode($this)
-        );
-    }
-
-    public function read() {
-        $file = self::file($this->id);
-        if(file_exists($file)) {
-            return json_decode(
-                file_get_contents(self::file($this->id))
-            );
-        }
-        return null;
-    }
-
-    // /*
-    //  * Static Functions
-    //  */
-    // public static function file($name = null) {
-    //     return self::$dir . ($name ?: "misc") . ".json";
-    // }
-
-
-    // public static function write($object, $name = null) {
-    //     return file_put_contents(
-    //         self::file($name),
-    //         json_encode($object),
-    //         FILE_APPEND
-    //     );
-    // }
-
+  private function filename() {
+    return self::DIR . $this->namespace . '.json';
+  }
 }

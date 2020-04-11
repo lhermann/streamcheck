@@ -1,0 +1,14 @@
+[
+  {
+    "url": "/api/v2/auth"
+  },
+  {
+    "url": "/api/v2/auth/callback"
+  },
+  {
+    "url": "/api/v2/check"
+  },
+  {
+    "url": "/api/v2/status"
+  }
+]

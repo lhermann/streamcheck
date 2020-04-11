@@ -1,0 +1,17 @@
+[
+  {
+    "name": "YouTube Broadcast",
+    "url": "https://www.youtube.com/embed/live_stream?channel=CHANNEL_ID",
+    "method": "youtube-api",
+    "OAuthCredentialsFile": "oauth_credentials.json",
+  },
+  {
+    "name": "RTMP Stream",
+    "url": "rtmp://streamer.example.com/channel/stream_id",
+    "method": "curl"
+  },
+  {
+    "name": "Manual Stream",
+    "live": true
+  }
+]

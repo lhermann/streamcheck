@@ -1,0 +1,10 @@
+[
+  {
+    "url": "/api/v1",
+    "description": "Version 1"
+  },
+  {
+    "url": "/api/v2",
+    "description": "Version 2"
+  }
+]

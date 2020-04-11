@@ -1,9 +1,9 @@
 node_modules
 npm-debug.log
-
+vendor/
 .DS_Store
 Thumbs.db
-
-
 *.log
 store/*.json
+config.json
+client_secret_*.json
