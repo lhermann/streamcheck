@@ -19,9 +19,10 @@ function mapTokens ($config) {
   $client = new Google_API($config);
   $token = $client->getToken();
   return [
+    'name' => $config->name,
     'Oauth2ClientID' => $client->getClientId(),
     'authenticated' => $client->authenticated(),
-    'token' => $token,
+    // 'token' => $token,
     'expires' => date('c', $token['created'] + $token['expires_in']),
     'auth_url' => $client->getAuthUrl()
   ];

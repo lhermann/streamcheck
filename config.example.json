@@ -4,6 +4,7 @@
     "url": "https://www.youtube.com/embed/live_stream?channel=CHANNEL_ID",
     "method": "youtube-api",
     "OAuthCredentialsFile": "oauth_credentials.json",
+    "Oauth2ClientID": "123456789.apps.googleusercontent.com",
   },
   {
     "name": "RTMP Stream",
