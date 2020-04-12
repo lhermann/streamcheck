@@ -20,3 +20,22 @@ html {
 html {
   background-color: theme('colors.gray.100');
 }
+
+/* Spinner */
+.spinner {
+  display: inline-block;
+}
+.spinner:after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 6px solid theme('colors.gray.500');
+  border-color: theme('colors.gray.500') transparent theme('colors.gray.500') transparent;
+  animation: rotate 1.2s linear infinite;
+}
+@keyframes rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
