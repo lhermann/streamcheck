@@ -45,7 +45,6 @@ class Google_API {
   public function authenticate ($code) {
     $token = $this->client->fetchAccessTokenWithAuthCode($code);
     $token['refresh_token'] = $this->client->getRefreshToken();
-    $token['expires'] = date('c', time() + $token->expires_in);
     $this->store->set($this->client->getClientId(), $token);
     return $token;
   }
@@ -57,9 +56,7 @@ class Google_API {
   public function renewToken () {
     $token = $this->store->getValue($this->client->getClientId());
     $new_token = $this->client->fetchAccessTokenWithRefreshToken($token['refresh_token']);
-    $token['access_token'] = $new_token->access_token;
-    $token['expires'] = date('c', time() + $new_token->expires_in);
-    $this->store->set($this->client->getClientId(), $token);
+    $this->store->set($this->client->getClientId(), $new_token);
   }
 
   public function youtube_api () {

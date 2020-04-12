@@ -22,7 +22,7 @@ function mapTokens ($config) {
     'Oauth2ClientID' => $client->getClientId(),
     'authenticated' => $client->authenticated(),
     'token' => $token,
-    'expires' => date('c', $token->created),
+    'expires' => date('c', $token['created'] + $token['expires_in']),
     'auth_url' => $client->getAuthUrl()
   ];
 }
