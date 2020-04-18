@@ -4,16 +4,16 @@ require_once('Log.php');
 require_once('Google_API.php');
 
 class Check {
-  public static function __($config) {
+  public static function __($config, $value = null) {
     switch ($config->method) {
-      case METHODS::MANUAL: return self::manual($config);
+      case METHODS::MANUAL: return self::manual($config, $value);
       case METHODS::CURL: return self::curl($config);
       case METHODS::YOUTUBE: return self::youtube($config);
     }
   }
 
-  public static function manual ($config) {
-    return (bool) $config->live;
+  public static function manual ($config, $value = null) {
+    return (bool) ($value !== null ? $value : $config->live);
   }
 
   public static function curl ($config) {

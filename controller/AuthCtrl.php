@@ -4,17 +4,17 @@ require_once(__ROOT__ . '/inc/Config.php');
 require_once(__ROOT__ . '/inc/Google_API.php');
 
 class AuthCtrl {
-  public static function getStatus () {
+  public static function get () {
     return array_map(
       'self::_mapTokens',
       Config::getStreamByMethod(METHODS::YOUTUBE)
     );
   }
 
-  public static function getCallback () {
+  public static function callback () {
     $code = $_GET['code'];
     $state = $_GET['state'];
-    if (!$code || !$state) return new Error('code and state required');
+    if (!$code || !$state) throw new Exception('code and state required');
 
     // find config
     $config_list = Config::getStreamByMethod(METHODS::YOUTUBE);
@@ -29,7 +29,7 @@ class AuthCtrl {
       $client->authenticate($_GET['code']);
       header('Location: //' . $_SERVER['HTTP_HOST'] . '/api/v2/auth');
     } else {
-      return new Error('The session state did not match.');
+      throw new Exception('The session state did not match.');
     }
   }
 

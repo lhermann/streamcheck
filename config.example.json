@@ -1,18 +1,19 @@
 [
   {
     "name": "YouTube Broadcast",
-    "url": "https://www.youtube.com/embed/live_stream?channel=CHANNEL_ID",
     "method": "youtube-api",
-    "OAuthCredentialsFile": "oauth_credentials.json",
+    "url": "https://www.youtube.com/embed/live_stream?channel=CHANNEL_ID",
     "Oauth2ClientID": "123456789.apps.googleusercontent.com",
+    "OAuthCredentialsFile": "oauth_credentials.json"
   },
   {
     "name": "RTMP Stream",
-    "url": "rtmp://streamer.example.com/channel/stream_id",
-    "method": "curl"
+    "method": "curl",
+    "url": "rtmp://streamer.example.com/channel/stream_id"
   },
   {
     "name": "Manual Stream",
-    "live": true
+    "method": "manual",
+    "default": false
   }
 ]

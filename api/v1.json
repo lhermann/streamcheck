@@ -1,17 +1,28 @@
 [
   {
-    "url": "/api/v1/auth"
+    "url": "/api/v1/auth",
+    "method": "GET"
   },
   {
-    "url": "/api/v1/auth/callback"
+    "url": "/api/v1/auth/callback",
+    "method": "GET"
   },
   {
-    "url": "/api/v1/status"
+    "url": "/api/v1/status",
+    "method": "GET"
   },
   {
-    "url": "/api/v1/status/check"
+    "url": "/api/v1/status/check",
+    "method": "GET"
   },
   {
-    "url": "/api/v1/status/toggle-manual"
+    "url": "/api/v1/status/toggle?name=<name>",
+    "method": "POST",
+    "auth": true
+  },
+  {
+    "url": "/api/v1/status/remove?name=<name>",
+    "method": "DELETE",
+    "auth": true
   }
 ]

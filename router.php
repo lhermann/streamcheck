@@ -26,14 +26,15 @@ require_once __ROOT__ . '/controller/StatusCtrl.php';
 // $_SESSION['query'] = isset($output) ? $output : [];
 
 
-$router->get('',                             'getRoot');
-$router->get('api',                          'getApi', 'json');
-$router->get('api/v1',                       'getApiV1', 'json');
-$router->get('api/v1/auth',                  'AuthCtrl::getStatus', 'json');
-$router->get('api/v1/auth/callback',         'AuthCtrl::getCallback', 'json');
-$router->get('api/v1/status',                'StatusCtrl::getStatus', 'json');
-$router->get('api/v1/status/check',          'StatusCtrl::checkStatus', 'json');
-$router->get('api/v1/status/toggle-manual',  'StatusCtrl::toggleManualStatus', 'json', true);
+$router->get('',                        'getRoot');
+$router->get('api',                     'getApi', 'json');
+$router->get('api/v1',                  'getApiV1', 'json');
+$router->get('api/v1/auth',             'AuthCtrl::get', 'json');
+$router->get('api/v1/auth/callback',    'AuthCtrl::callback', 'json');
+$router->get('api/v1/status',           'StatusCtrl::get', 'json');
+$router->get('api/v1/status/check',     'StatusCtrl::check', 'json');
+$router->post('api/v1/status/toggle',   'StatusCtrl::toggle', 'json', true);
+$router->delete('api/v1/status/remove', 'StatusCtrl::remove', 'json', true);
 $router->notFound();
 
 exit();

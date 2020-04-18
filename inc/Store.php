@@ -70,6 +70,11 @@ class Store {
     $this->write();
   }
 
+  public function remove ($key) {
+    unset($this->store[$key]);
+    $this->write();
+  }
+
   public function clear () {
     $this->store = [];
   }

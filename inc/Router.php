@@ -9,6 +9,10 @@ class Router {
     $url = parse_url($_SERVER['REQUEST_URI']);
     $this->method = $_SERVER['REQUEST_METHOD'];
     $this->route = $this->_explodeRoute($url['path']);
+    header('Access-Control-Allow-Headers: *');
+    header('Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS');
+
+    if ($this->method === 'OPTIONS') exit();
   }
 
   public function notFound () {
@@ -27,6 +31,15 @@ class Router {
 
   public function post ($route, $callback = null, $content_type = null, $auth = false){
     if ($this->method !== 'POST') return;
+    if ($this->_compareRoute($route)) {
+      if ($auth) $this->_requireAuth();
+      $this->_serveCallback($callback, $content_type);
+      exit();
+    }
+  }
+
+  public function delete ($route, $callback = null, $content_type = null, $auth = false){
+    if ($this->method !== 'DELETE') return;
     if ($this->_compareRoute($route)) {
       if ($auth) $this->_requireAuth();
       $this->_serveCallback($callback, $content_type);
@@ -57,6 +70,7 @@ class Router {
         echo $response;
       }
     } catch (Exception $e) {
+      header('HTTP/1.1 400 Internal Server Error');
       echo 'Caught exception: ', $e->getMessage();
     }
   }
