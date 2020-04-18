@@ -3,23 +3,24 @@
 class Config {
   private static $file = "config.json";
 
-  public static function get() {
-    return json_decode(file_get_contents(dirname(__DIR__) . '/' . self::$file));
+  public static function get($key = 'streams') {
+    $config = json_decode(file_get_contents(dirname(__DIR__) . '/' . self::$file));
+    return $config->{$key};
   }
 
   // Get filtered config array by method
-  public static function get_by_method($method) {
-    $config_list = self::get();
+  public static function getStreamByMethod($method) {
+    $streams = self::get('streams');
     return array_filter(
-      $config_list,
+      $streams,
       function ($item) use ($method) { return $item->method === $method; }
     );
   }
 
   // Get config object by Google client ID
-  public static function get_by_client_id($client_id) {
-    $config_list = self::get();
-    $index = array_search($client_id, array_column($config_list, 'Oauth2ClientID'));
-    return $config_list[$index];
+  public static function getStreamByClientId($client_id) {
+    $streams = self::get('streams');
+    $index = array_search($client_id, array_column($streams, 'Oauth2ClientID'));
+    return $streams[$index];
   }
 }

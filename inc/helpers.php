@@ -12,11 +12,10 @@ function generateStatusReport (Store $store) {
       'updated' => $value->updated
     ];
   }
-  $report = [
+  return [
     'streams' => $streams,
     'live' => count(array_filter($store->getAll(), 'extractValue')) > 0
   ];
-  return json_encode($report);
 }
 
 function extractValue (Value $value) {
