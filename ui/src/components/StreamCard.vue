@@ -14,6 +14,7 @@
     <div v-if="stream.method === 'manual'" class="mt-2">
       <button
         class="bg-transparent hover:bg-green-500 text-green-600 hover:text-white py-1 px-2 border border-gray-400 hover:border-transparent rounded"
+        @click="$emit('toggleManual')"
       >
         Toggle
       </button>

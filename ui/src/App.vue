@@ -12,7 +12,7 @@
         &bull; {{ live ? 'LIVE' : 'OFFLINE' }}
       </span>
       <button
-        class="text-white font-bold py-2 px-4 rounded"
+        class="text-white font-bold py-2 px-4 rounded mr-4"
         :class="{
           'bg-green-500 hover:bg-green-700': !loading,
           'bg-gray-500 cursor-not-allowed': loading,
@@ -22,18 +22,29 @@
       >
         Check
       </button>
+      <button
+        class="text-white font-bold py-2 px-4 rounded"
+        :class="{
+          'bg-green-500 hover:bg-green-700': !loading,
+          'bg-gray-500 cursor-not-allowed': loading,
+        }"
+        :disabled="loading"
+        @click="getStatus"
+      >
+        Refresh
+      </button>
+    </div>
+
+    <div
+      v-if="error"
+      class="bg-white shadow-md rounded border-l-4 border-red-500 p-4 mb-6"
+      role="alert"
+    >
+      <strong>Error:</strong> {{ error }}
     </div>
 
     <div v-if="loading" class="text-center">
       <div class="spinner"></div>
-    </div>
-
-    <div
-      v-else-if="error"
-      class="bg-white shadow-md rounded border-l-4 border-red-500 p-4"
-      role="alert"
-    >
-      <strong>Error:</strong> {{ error }}
     </div>
 
     <div v-else>
@@ -41,8 +52,9 @@
         v-for="stream in streams"
         :key="stream.name"
         :stream="stream"
-        :auth="auth.find(item => item.name === stream.name)"
+        :auth="auth?.find(item => item.name === stream.name)"
         class="mb-6"
+        @toggleManual="toggleManual"
       />
     </div>
   </div>
@@ -67,43 +79,59 @@ export default {
   },
   computed: {
     live () {
-      return this.status ? this.status.live : false
+      return this.status?.live : false
     },
     streams () {
-      return this.config.map((item, key) => {
+      return this.config.streams.map((item, key) => {
         return {
           ...item,
-          ...this.status.streams[key],
+          ...this.status?.streams[key],
         }
       })
     },
   },
-  async mounted () {
-    this.loading = true
-    try {
-      const params = { redirect_url: window.location.href }
-      const parallelCalls = await Promise.all([
-        this.$http.get('status'),
-        this.$http.get('auth', { params }),
-      ])
-      console.log({ parallelCalls })
-      this.status = parallelCalls[0].body
-      this.auth = parallelCalls[1].body
-    } catch (e) {
-      this.error = e
-    }
-    this.loading = false
+  mounted () {
+    this.getStatus()
   },
   methods: {
+    async getStatus () {
+      this.loading = true
+      try {
+        // const params = { redirect_url: window.location.href }
+        const parallelCalls = await Promise.all([
+          fetch('http://localhost:8080/api/v1/status'),
+          fetch('http://localhost:8080/api/v1/auth'),
+        ])
+        this.status = await parallelCalls[0].json()
+        this.auth = await parallelCalls[1].json()
+      } catch (e) {
+        this.error = e
+      }
+      this.loading = false
+    },
     async check () {
       this.loading = true
       try {
-        const { body } = await this.$http.get('check')
+        const { body } = await this.$http.get('status/check')
         this.status = body
       } catch (e) {
         this.error = e
       }
       this.loading = false
+    },
+    async toggleManual () {
+      try {
+        // const { body } = await this.$http.get('status/toggle-manual')
+        // const authStr = btoa('admin:TNUjqCn7hfuJR4PHvW7Fyh7n')
+        const { body } = await this.$http.post(
+          'status/toggle-manual',
+          // { headers: { 'X-TEST': `Basic ${authStr}` } },
+          // { headers: { hello: 'world' }, credentials: true },
+        )
+        this.status = body
+      } catch (e) {
+        this.error = e
+      }
     },
   },
 }

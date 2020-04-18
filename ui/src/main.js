@@ -7,7 +7,8 @@ import config from '../../config.json'
 
 Vue.config.productionTip = false
 Vue.use(VueResource)
-Vue.http.options.root = 'http://localhost:8080/api/v2/'
+Vue.http.options.root = 'http://localhost:8080/api/v1/'
+Vue.http.options.headers = { hello: 'world' }
 
 new Vue({
   render: h => h(App),
