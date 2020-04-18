@@ -52,21 +52,30 @@
         v-for="stream in streams"
         :key="stream.name"
         :stream="stream"
-        :auth="auth?.find(item => item.name === stream.name)"
+        :auth="auth ? auth.find(item => item.name === stream.name) : null"
         class="mb-6"
-        @toggleManual="toggleManual"
+        @toggle="toggle"
+        @remove="remove"
       />
     </div>
+
+    <h2 class="text-xl font-bold text-gray-400">Basic Auth</h2>
+    <CredentialsForm
+      :name.sync="basicAuth.name"
+      :password.sync="basicAuth.pass"
+    />
   </div>
 </template>
 
 <script>
 import StreamCard from './components/StreamCard.vue'
+import CredentialsForm from './components/CredentialsForm.vue'
 
 export default {
   name: 'Streamcheck',
   components: {
     StreamCard,
+    CredentialsForm,
   },
   inject: ['config'],
   data () {
@@ -75,32 +84,49 @@ export default {
       error: null,
       status: null,
       auth: null,
+      basicAuth: {
+        name: '',
+        pass: '',
+      },
     }
   },
   computed: {
     live () {
-      return this.status?.live : false
+      return this.status?.live || false
     },
     streams () {
-      return this.config.streams.map((item, key) => {
-        return {
-          ...item,
-          ...this.status?.streams[key],
-        }
-      })
+      return this.status?.streams || []
+    },
+    authHeader () {
+      const authStr = btoa(`${this.basicAuth.name}:${this.basicAuth.pass}`)
+      return new Headers({ Authorization: `Basic ${authStr}` })
+    },
+  },
+  watch: {
+    basicAuth: {
+      deep: true,
+      handler (obj) {
+        localStorage.setItem('basicAuthName', obj.name)
+        localStorage.setItem('basicAuthPass', obj.pass)
+      },
     },
   },
   mounted () {
     this.getStatus()
+    this.basicAuth = {
+      name: localStorage.getItem('basicAuthName') || '',
+      pass: localStorage.getItem('basicAuthPass') || '',
+    }
   },
   methods: {
     async getStatus () {
       this.loading = true
+      this.error = null
       try {
         // const params = { redirect_url: window.location.href }
         const parallelCalls = await Promise.all([
-          fetch('http://localhost:8080/api/v1/status'),
-          fetch('http://localhost:8080/api/v1/auth'),
+          fetch(this.$apiRoot + 'status'),
+          fetch(this.$apiRoot + 'auth'),
         ])
         this.status = await parallelCalls[0].json()
         this.auth = await parallelCalls[1].json()
@@ -111,24 +137,43 @@ export default {
     },
     async check () {
       this.loading = true
+      this.error = null
       try {
-        const { body } = await this.$http.get('status/check')
-        this.status = body
+        const response = await fetch(this.$apiRoot + 'status/check')
+        this.status = await response.json()
       } catch (e) {
         this.error = e
       }
       this.loading = false
     },
-    async toggleManual () {
+    async toggle (name) {
+      this.error = null
       try {
-        // const { body } = await this.$http.get('status/toggle-manual')
-        // const authStr = btoa('admin:TNUjqCn7hfuJR4PHvW7Fyh7n')
-        const { body } = await this.$http.post(
-          'status/toggle-manual',
-          // { headers: { 'X-TEST': `Basic ${authStr}` } },
-          // { headers: { hello: 'world' }, credentials: true },
+        const response = await fetch(
+          this.$apiRoot + `status/toggle?name=${encodeURI(name)}`,
+          { method: 'post', headers: this.authHeader },
         )
-        this.status = body
+        if (response.ok) {
+          this.status = await response.json()
+        } else {
+          this.error = response.statusText
+        }
+      } catch (e) {
+        this.error = e
+      }
+    },
+    async remove (name) {
+      this.error = null
+      try {
+        const response = await fetch(
+          this.$apiRoot + `status/remove?name=${encodeURI(name)}`,
+          { method: 'delete', headers: this.authHeader },
+        )
+        if (response.ok) {
+          this.status = await response.json()
+        } else {
+          this.error = response.statusText
+        }
       } catch (e) {
         this.error = e
       }

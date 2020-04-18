@@ -9,6 +9,7 @@ Vue.config.productionTip = false
 Vue.use(VueResource)
 Vue.http.options.root = 'http://localhost:8080/api/v1/'
 Vue.http.options.headers = { hello: 'world' }
+Vue.prototype.$apiRoot = 'http://localhost:8080/api/v1/'
 
 new Vue({
   render: h => h(App),

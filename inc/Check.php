@@ -13,7 +13,7 @@ class Check {
   }
 
   public static function manual ($config, $value = null) {
-    return (bool) ($value !== null ? $value : $config->live);
+    return (bool) ($value !== null ? $value : $config->default);
   }
 
   public static function curl ($config) {
