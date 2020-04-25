@@ -1,19 +1,25 @@
-[
-  {
-    "name": "YouTube Broadcast",
-    "method": "youtube-api",
-    "url": "https://www.youtube.com/embed/live_stream?channel=CHANNEL_ID",
-    "Oauth2ClientID": "123456789.apps.googleusercontent.com",
-    "OAuthCredentialsFile": "oauth_credentials.json"
-  },
-  {
-    "name": "RTMP Stream",
-    "method": "curl",
-    "url": "rtmp://streamer.example.com/channel/stream_id"
-  },
-  {
-    "name": "Manual Stream",
-    "method": "manual",
-    "default": false
+{
+  "streams": [
+    {
+      "name": "YouTube Broadcast",
+      "method": "youtube-api",
+      "url": "https://www.youtube.com/embed/live_stream?channel=CHANNEL_ID",
+      "Oauth2ClientID": "123456789.apps.googleusercontent.com",
+      "OAuthCredentialsFile": "oauth_credentials.json"
+    },
+    {
+      "name": "RTMP Stream",
+      "method": "curl",
+      "url": "rtmp://streamer.example.com/channel/stream_id"
+    },
+    {
+      "name": "Manual Stream",
+      "method": "manual",
+      "default": false
+    }
+  ],
+  "auth": {
+    "user": "admin",
+    "password": "password"
   }
-]
+}
