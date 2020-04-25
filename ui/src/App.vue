@@ -77,7 +77,6 @@ export default {
     StreamCard,
     CredentialsForm,
   },
-  inject: ['config'],
   data () {
     return {
       loading: true,
