@@ -55,8 +55,10 @@ class Google_API {
 
   public function renewToken () {
     $token = $this->store->getValue($this->client->getClientId());
-    $new_token = $this->client->fetchAccessTokenWithRefreshToken($token['refresh_token']);
-    $this->store->set($this->client->getClientId(), $new_token);
+    if ($token) {
+      $new_token = $this->client->fetchAccessTokenWithRefreshToken($token['refresh_token']);
+      $this->store->set($this->client->getClientId(), $new_token);
+    }
   }
 
   public function youtube_api () {
