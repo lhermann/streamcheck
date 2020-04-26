@@ -4,7 +4,7 @@ import App from './App.vue'
 import './assets/main.css'
 
 Vue.config.productionTip = false
-Vue.prototype.$apiRoot = 'http://localhost:8080/api/v1/'
+Vue.prototype.$apiRoot = process.env.VUE_APP_API_ROOT + '/api/v1/'
 
 new Vue({
   render: h => h(App),
