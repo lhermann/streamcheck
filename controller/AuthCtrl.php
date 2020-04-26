@@ -27,7 +27,7 @@ class AuthCtrl {
       $config = $filtered_list[0];
       $client = new Google_API($config);
       $client->authenticate($_GET['code']);
-      header('Location: //' . $_SERVER['HTTP_HOST'] . '/api/v2/auth');
+      header('Location: //' . $_SERVER['HTTP_HOST'] . '/api/v1/auth');
     } else {
       throw new Exception('The session state did not match.');
     }

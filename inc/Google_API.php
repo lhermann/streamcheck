@@ -10,7 +10,7 @@ class Google_API {
     $this->client->setApplicationName('Joel Streamcheck');
     $this->client->setDeveloperKey($config->apiKey);
     $this->client->setAuthConfig(__ROOT__.'/'.$config->OAuthCredentialsFile);
-    $this->client->setRedirectUri('http://'.$_SERVER['HTTP_HOST'].'/api/v2/auth/callback');
+    $this->client->setRedirectUri('http://'.$_SERVER['HTTP_HOST'].'/api/v1/auth/callback');
     $this->client->setScopes(['https://www.googleapis.com/auth/youtube']);
     $this->client->prepareScopes();
     $this->client->setAccessType('offline');
