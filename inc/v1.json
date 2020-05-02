@@ -1,5 +1,13 @@
 [
   {
+    "url": "/api/v1/streams",
+    "method": "GET"
+  },
+  {
+    "url": "/api/v1/streams/:id",
+    "method": "GET"
+  },
+  {
     "url": "/api/v1/auth",
     "method": "GET"
   },
@@ -16,12 +24,16 @@
     "method": "GET"
   },
   {
-    "url": "/api/v1/status/toggle?name=<name>",
+    "url": "/api/v1/status/check/:id",
+    "method": "GET"
+  },
+  {
+    "url": "/api/v1/status/toggle/:id",
     "method": "POST",
     "auth": true
   },
   {
-    "url": "/api/v1/status/remove?name=<name>",
+    "url": "/api/v1/status/remove/:id",
     "method": "DELETE",
     "auth": true
   }
