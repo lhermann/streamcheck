@@ -162,7 +162,8 @@ export default {
           this.streams[index].live = obj.live
           this.streams[index].updated = obj.updated
         } else {
-          this.error = response.statusText
+          console.log(response)
+          this.error = response.statusText || response.status
         }
       } catch (e) {
         this.error = e
