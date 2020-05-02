@@ -68,6 +68,7 @@ class Store {
     $instance = $this->get($key);
     $instance->set($value);
     $this->write();
+    return $instance;
   }
 
   public function remove ($key) {

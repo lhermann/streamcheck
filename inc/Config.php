@@ -2,6 +2,27 @@
 
 class Config {
   private static $file = "config.json";
+  private $config;
+
+  public function __construct() {
+    $this->config = json_decode(file_get_contents(__ROOT__ . '/' . self::$file));
+  }
+
+  public function getAllStreams() {
+    return $this->config->streams;
+  }
+
+  public function getStream($id) {
+    $streams = $this->getAllStreams();
+    $index = array_search($id, array_column($streams, 'id'));
+    return $index !== false ? $streams[$index] : null;
+  }
+
+  public function getAuthCredentials() {
+    return $this->config->auth;
+  }
+
+  /* Static Functions */
 
   public static function get($key = 'streams') {
     $config = json_decode(file_get_contents(dirname(__DIR__) . '/' . self::$file));

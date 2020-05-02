@@ -15,6 +15,7 @@ header("Access-Control-Allow-Origin: *");
 $router = new Router();
 
 // require controllers
+require_once __ROOT__ . '/controller/StreamsCtrl.php';
 require_once __ROOT__ . '/controller/AuthCtrl.php';
 require_once __ROOT__ . '/controller/StatusCtrl.php';
 
@@ -29,12 +30,15 @@ require_once __ROOT__ . '/controller/StatusCtrl.php';
 $router->get('',                        'getRoot');
 $router->get('api',                     'getApi', 'json');
 $router->get('api/v1',                  'getApiV1', 'json');
+$router->get('api/v1/streams',          'StreamsCtrl::getAll', 'json');
+$router->get('api/v1/streams/:id',      'StreamsCtrl::get', 'json');
 $router->get('api/v1/auth',             'AuthCtrl::get', 'json');
 $router->get('api/v1/auth/callback',    'AuthCtrl::callback', 'json');
 $router->get('api/v1/status',           'StatusCtrl::get', 'json');
-$router->get('api/v1/status/check',     'StatusCtrl::check', 'json');
-$router->post('api/v1/status/toggle',   'StatusCtrl::toggle', 'json', true);
-$router->delete('api/v1/status/remove', 'StatusCtrl::remove', 'json', true);
+$router->get('api/v1/status/check',     'StatusCtrl::checkAll', 'json');
+$router->get('api/v1/status/check/:id', 'StatusCtrl::check', 'json');
+$router->post('api/v1/status/toggle/:id', 'StatusCtrl::toggle', 'json', true);
+$router->delete('api/v1/status/remove/:id', 'StatusCtrl::remove', 'json', true);
 $router->notFound();
 
 exit();

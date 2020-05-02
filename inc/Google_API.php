@@ -1,14 +1,17 @@
 <?php
 require_once('Store.php');
+require_once('Log.php');
 
 class Google_API {
-  private $client, $store, $api;
+  private $config, $client, $store, $api;
 
   public function __construct ($config) {
+    $this->config = $config;
+    $this->store = new Store(Store::TOKENS);
+
     // Init Client
     $this->client = new Google_Client();
     $this->client->setApplicationName('Joel Streamcheck');
-    $this->client->setDeveloperKey($config->apiKey);
     $this->client->setAuthConfig(__ROOT__.'/'.$config->OAuthCredentialsFile);
     $this->client->setRedirectUri('http://'.$_SERVER['HTTP_HOST'].'/api/v1/auth/callback');
     $this->client->setScopes(['https://www.googleapis.com/auth/youtube']);
@@ -17,8 +20,7 @@ class Google_API {
     $this->client->setApprovalPrompt('force');
 
     // Get token from store
-    $this->store = new Store(Store::TOKENS);
-    $token = $this->store->getValue($this->client->getClientId());
+    $token = $this->store->getValue($this->config->id);
     if ($token) $this->client->setAccessToken($token);
 
     // renew token if necessary
@@ -34,7 +36,7 @@ class Google_API {
   }
 
   public function getState () {
-    return sha1($this->client->getClientId());
+    return sha1($this->config->id);
   }
 
   public function getAuthUrl () {
@@ -43,10 +45,15 @@ class Google_API {
   }
 
   public function authenticate ($code) {
-    $token = $this->client->fetchAccessTokenWithAuthCode($code);
-    $token['refresh_token'] = $this->client->getRefreshToken();
-    $this->store->set($this->client->getClientId(), $token);
-    return $token;
+    try {
+      $token = $this->client->fetchAccessTokenWithAuthCode($code);
+      $token['refresh_token'] = $this->client->getRefreshToken();
+      $this->store->set($this->config->id, $token);
+      return $token;
+    } catch (Exception $e) {
+      Log::write($e->getMessage(), Log::ERROR);
+      throw $e;
+    }
   }
 
   public function authenticated () {
@@ -54,10 +61,16 @@ class Google_API {
   }
 
   public function renewToken () {
-    $token = $this->store->getValue($this->client->getClientId());
-    if ($token) {
-      $new_token = $this->client->fetchAccessTokenWithRefreshToken($token['refresh_token']);
-      $this->store->set($this->client->getClientId(), $new_token);
+    try {
+      $token = $this->store->getValue($this->config->id);
+      if (!$token || !key_exists('refresh_token', $token)) return;
+      $new_token = $this->client->fetchAccessTokenWithRefreshToken(
+        $token['refresh_token']
+      );
+      $this->store->set($this->config->id, $new_token);
+    } catch (Exception $e) {
+      Log::write($e->getMessage(), Log::ERROR);
+      throw $e;
     }
   }
 

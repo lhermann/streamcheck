@@ -7,55 +7,77 @@ require_once(__ROOT__ . '/inc/helpers.php');
 class StatusCtrl {
   public static function get () {
     $store = new Store(Store::STATUS);
-    return generateStatusReport($store);
+    return [
+      "live" => count(array_filter($store->getAll(), 'self::_extractValue')) > 0
+    ];
   }
 
-  public static function check () {
-    $config_list = Config::get();
+  public static function checkAll () {
+    $config = new Config();
     $store = new Store(Store::STATUS);
 
-    foreach ($config_list as $config) {
+    $streams = [];
+    foreach ($config->getAllStreams() as $stream) {
       // perform apropriate check per method
-      $result = Check::__($config, $store->getValue($config->name));
+      $result = Check::__($stream, $store->getValue($stream->id));
 
       // store result
-      $store->set($config->name, $result);
+      $store->set($stream->id, $result);
     }
 
     return self::_generateStatusReport($store);
   }
 
-  public static function remove () {
-    $name = $_GET['name'];
-    if (!$name) throw new Exception('Missing argument: name');
+  public static function check ($router) {
+    $config = new Config();
     $store = new Store(Store::STATUS);
-    $store->remove($name);
-    return self::_generateStatusReport($store);
+    $id = $router->param('id');
+    $stream = $config->getStream($id);
+
+    // perform apropriate check per method
+    $result = Check::__($stream, $store->getValue($id));
+
+    // store result
+    $value = $store->set($id, $result);
+
+    return [
+      'id' => $id,
+      'live' => $value->value,
+      'updated' => $value->updated,
+    ];
   }
 
-  public static function toggle () {
-    $name = $_GET['name'];
-    if (!$name) throw new Exception('Missing argument: name');
+  public static function remove ($router) {
+    $id = $router->param('id');
+    if (!$id) throw new Exception('Missing argument: id');
     $store = new Store(Store::STATUS);
-    $store->set($name, (bool) !$store->getValue($name));
-    return self::_generateStatusReport($store);
+    $store->remove($id);
+    return true;
+  }
+
+  public static function toggle ($router) {
+    $id = $router->param('id');
+    if (!$id) throw new Exception('Missing argument: id');
+    $store = new Store(Store::STATUS);
+    $new_value = (bool) !$store->getValue($id);
+    $value = $store->set($id, $new_value);
+    return [
+      'id' => $id,
+      'live' => $value->value,
+      'updated' => $value->updated,
+    ];
   }
 
   private static function _generateStatusReport (Store $store) {
-    $all_statuses = $store->getAll();
-    // $report = array_map('extractValue', $all_statuses);
     $streams = [];
     foreach ($store->getAll() as $key => $value) {
       $streams[] = [
-        'name' => $key,
+        'id' => $key,
         'live' => $value->value,
-        'updated' => $value->updated
+        'updated' => $value->updated,
       ];
     }
-    return [
-      'streams' => $streams,
-      'live' => count(array_filter($store->getAll(), 'self::_extractValue')) > 0
-    ];
+    return $streams;
   }
 
   private static function _extractValue (Value $value) {

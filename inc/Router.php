@@ -3,7 +3,7 @@ require_once(__ROOT__ . '/inc/Config.php');
 
 class Router {
 
-  private $route = [], $method = '';
+  private $route = [], $method = '', $params = [];
 
   public function __construct () {
     $url = parse_url($_SERVER['REQUEST_URI']);
@@ -17,7 +17,7 @@ class Router {
 
   public function notFound () {
     http_response_code(404);
-    print("<h1>404 Not Found</h1>");
+    print("404 Not Found");
   }
 
   public function get ($route, $callback = null, $content_type = null, $auth = false){
@@ -47,14 +47,22 @@ class Router {
     }
   }
 
+  public function param ($key) {
+    return $this->params[$key];
+  }
+
   private function _explodeRoute ($route) {
     return explode('/', trim($route, ' /'));
   }
 
   private function _compareRoute ($route) {
-    foreach ($this->_explodeRoute($route) as $key => $value) {
-      if ($value === '*') return true;
-      if ($this->route[$key] !== $value) return false;
+    foreach ($this->_explodeRoute($route) as $key => $str) {
+      if ($str && $str{0} === ':') {
+        $this->params[trim($str, ':')] = $this->route[$key];
+        continue;
+      }
+      if ($str === '*') return true;
+      if ($this->route[$key] !== $str) return false;
     }
     return count($this->_explodeRoute($route)) === count($this->route);
   }
@@ -62,7 +70,7 @@ class Router {
   private function _serveCallback ($callback, $content_type = null) {
     if (!$callback) echo "Missing callback for route $route";
     try {
-      $response = call_user_func($callback);
+      $response = call_user_func($callback, $this);
       if ($content_type === 'json') {
         header('Content-Type: application/json');
         echo $response ? json_encode($response) : '';
@@ -70,24 +78,37 @@ class Router {
         echo $response;
       }
     } catch (Exception $e) {
-      header('HTTP/1.1 400 Internal Server Error');
-      echo 'Caught exception: ', $e->getMessage();
+      $message = $e->getMessage();
+      $code = 400;
+      if (json_decode($message) && property_exists(json_decode($message), 'error')) {
+        $error = json_decode($message)->error;
+        $message = $error->message;
+        $code = $error->code;
+      }
+      http_response_code($code);
+      echo $message;
     }
   }
 
   private function _requireAuth() {
     $auth = Config::get('auth');
     header('Cache-Control: no-cache, must-revalidate, max-age=0');
-    $has_supplied_credentials = !(empty($_SERVER['PHP_AUTH_USER']) && empty($_SERVER['PHP_AUTH_PW']));
-    $is_not_authenticated = (
-      !$has_supplied_credentials ||
-      $_SERVER['PHP_AUTH_USER'] != $auth->user ||
-      $_SERVER['PHP_AUTH_PW']   != $auth->password
-    );
-    if ($is_not_authenticated) {
-      header('HTTP/1.1 401 Authorization Required');
-      header('WWW-Authenticate: Basic realm="Streamcheck Access"');
+    if ($_SERVER['HTTP_APP_PASSWORD'] !== $auth->password) {
+      http_response_code(401);
       exit;
     }
+
+    // Basic Auth
+    // $has_supplied_credentials = !(empty($_SERVER['PHP_AUTH_USER']) && empty($_SERVER['PHP_AUTH_PW']));
+    // $is_not_authenticated = (
+    //   !$has_supplied_credentials ||
+    //   $_SERVER['PHP_AUTH_USER'] != $auth->user ||
+    //   $_SERVER['PHP_AUTH_PW']   != $auth->password
+    // );
+    // if ($is_not_authenticated) {
+    //   http_response_code(401);
+    //   header('WWW-Authenticate: Basic realm="Streamcheck Access"');
+    //   exit;
+    // }
   }
 }

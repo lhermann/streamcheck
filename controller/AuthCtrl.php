@@ -19,7 +19,7 @@ class AuthCtrl {
     // find config
     $config_list = Config::getStreamByMethod(METHODS::YOUTUBE);
     $filtered_list = array_filter($config_list, function ($item) {
-      return sha1($item->Oauth2ClientID) === $_GET['state'];
+      return sha1($item->id) === $_GET['state'];
     });
 
     // authenticate
@@ -37,12 +37,11 @@ class AuthCtrl {
     $client = new Google_API($config);
     $token = $client->getToken();
     return [
+      'id' => $config->id,
       'name' => $config->name,
-      'Oauth2ClientID' => $client->getClientId(),
       'authenticated' => $client->authenticated(),
-      // 'token' => $token,
       'expires' => date('c', $token['created'] + $token['expires_in']),
-      'auth_url' => $client->getAuthUrl()
+      'auth_url' => $client->getAuthUrl(),
     ];
   }
 }

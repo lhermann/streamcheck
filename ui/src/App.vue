@@ -29,7 +29,7 @@
           'bg-gray-500 cursor-not-allowed': loading,
         }"
         :disabled="loading"
-        @click="getStatus"
+        @click="getStreams"
       >
         Refresh
       </button>
@@ -49,20 +49,19 @@
 
     <div v-else>
       <StreamCard
-        v-for="stream in streams"
-        :key="stream.name"
+        v-for="(stream, i) in streams"
+        :key="stream.id"
         :stream="stream"
-        :auth="auth ? auth.find(item => item.name === stream.name) : null"
+        :auth="auth ? auth.find(item => item.id === stream.id) : null"
         class="mb-6"
-        @toggle="toggle"
-        @remove="remove"
+        @toggle="toggle(i, $event)"
+        @remove="remove(i, $event)"
       />
     </div>
 
-    <h2 class="text-xl font-bold text-gray-400">Basic Auth</h2>
+    <h2 class="text-xl font-bold text-gray-400">Auth</h2>
     <CredentialsForm
-      :name.sync="basicAuth.name"
-      :password.sync="basicAuth.pass"
+      :password.sync="password"
     />
   </div>
 </template>
@@ -72,7 +71,7 @@ import StreamCard from './components/StreamCard.vue'
 import CredentialsForm from './components/CredentialsForm.vue'
 
 export default {
-  name: 'Streamcheck',
+  name: 'App',
   components: {
     StreamCard,
     CredentialsForm,
@@ -81,54 +80,60 @@ export default {
     return {
       loading: true,
       error: null,
+      streams: [],
       status: null,
-      auth: null,
-      basicAuth: {
-        name: '',
-        pass: '',
-      },
+      auth: [],
+      password: '',
+      // basicAuth: {
+      //   name: '',
+      //   pass: '',
+      // },
     }
   },
   computed: {
     live () {
       return this.status?.live || false
     },
-    streams () {
-      return this.status?.streams || []
-    },
     authHeader () {
-      const authStr = btoa(`${this.basicAuth.name}:${this.basicAuth.pass}`)
-      return new Headers({ Authorization: `Basic ${authStr}` })
+      // const authStr = btoa(`${this.basicAuth.name}:${this.basicAuth.pass}`)
+      // return new Headers({ Authorization: `Basic ${authStr}` })
+      return new Headers({ 'App-Password': this.password })
     },
   },
   watch: {
-    basicAuth: {
-      deep: true,
-      handler (obj) {
-        localStorage.setItem('basicAuthName', obj.name)
-        localStorage.setItem('basicAuthPass', obj.pass)
-      },
+    password (password) {
+      localStorage.setItem('password', password)
     },
+    // basicAuth: {
+    //   deep: true,
+    //   handler (obj) {
+    //     localStorage.setItem('basicAuthName', obj.name)
+    //     localStorage.setItem('basicAuthPass', obj.pass)
+    //   },
+    // },
   },
   mounted () {
-    this.getStatus()
-    this.basicAuth = {
-      name: localStorage.getItem('basicAuthName') || '',
-      pass: localStorage.getItem('basicAuthPass') || '',
-    }
+    this.getStreams()
+    this.password = localStorage.getItem('password') || ''
+    // this.basicAuth = {
+    //   name: localStorage.getItem('basicAuthName') || '',
+    //   pass: localStorage.getItem('basicAuthPass') || '',
+    // }
   },
   methods: {
-    async getStatus () {
+    async getStreams () {
       this.loading = true
       this.error = null
       try {
         // const params = { redirect_url: window.location.href }
         const parallelCalls = await Promise.all([
+          fetch(this.$apiRoot + 'streams'),
           fetch(this.$apiRoot + 'status'),
           fetch(this.$apiRoot + 'auth'),
         ])
-        this.status = await parallelCalls[0].json()
-        this.auth = await parallelCalls[1].json()
+        this.streams = await parallelCalls[0].json()
+        this.status = await parallelCalls[1].json()
+        this.auth = await parallelCalls[2].json()
       } catch (e) {
         this.error = e
       }
@@ -145,15 +150,17 @@ export default {
       }
       this.loading = false
     },
-    async toggle (name) {
+    async toggle (index, id) {
       this.error = null
       try {
         const response = await fetch(
-          this.$apiRoot + `status/toggle?name=${encodeURI(name)}`,
+          this.$apiRoot + `status/toggle/${encodeURI(id)}`,
           { method: 'post', headers: this.authHeader },
         )
         if (response.ok) {
-          this.status = await response.json()
+          const obj = await response.json()
+          this.streams[index].live = obj.live
+          this.streams[index].updated = obj.updated
         } else {
           this.error = response.statusText
         }
@@ -161,15 +168,15 @@ export default {
         this.error = e
       }
     },
-    async remove (name) {
+    async remove (index, id) {
       this.error = null
       try {
         const response = await fetch(
-          this.$apiRoot + `status/remove?name=${encodeURI(name)}`,
+          this.$apiRoot + `status/remove/${encodeURI(id)}`,
           { method: 'delete', headers: this.authHeader },
         )
         if (response.ok) {
-          this.status = await response.json()
+          this.streams.splice(index, 1)
         } else {
           this.error = response.statusText
         }

@@ -13,25 +13,33 @@ class Check {
   }
 
   public static function manual ($config, $value = null) {
-    return (bool) ($value !== null ? $value : $config->default);
+    return (bool) ($value !== null ? $value : false);
   }
 
   public static function curl ($config) {
-    $exec_str = "timeout 10s ffprobe -v quiet -print_format json -show_format -show_streams -i $config->url 2>&1";
-    Log::write($exec_str);
-    $exec = shell_exec($exec_str);
-    if($exec[0] !== '{') Log::write($exec);
-    $json = json_decode($exec);
-    return is_object($json) && isset($json->streams);
+    try {
+      $exec_str = "timeout 10s ffprobe -v quiet -print_format json -show_format -show_streams -i $config->url 2>&1";
+      Log::write($exec_str, Log::CHECK);
+      $json = json_decode(shell_exec($exec_str));
+      return is_object($json) && isset($json->streams);
+    } catch (Exception $e) {
+      Log::write($e->getMessage(), Log::ERROR);
+      throw $e;
+    }
   }
 
   public static function youtube ($config) {
     $client = new Google_API($config);
     $api = $client->youtube_api();
-    $response = $api->liveBroadcasts->listLiveBroadcasts(
-      'id,snippet,status',
-      ['broadcastStatus' => 'active']
-    );
-    return count($response->items) > 0;
+    try {
+      $response = $api->liveBroadcasts->listLiveBroadcasts(
+        'id,snippet,status',
+        ['broadcastStatus' => 'active']
+      );
+      return count($response->items) > 0;
+    } catch (Exception $e) {
+      Log::write($e->getMessage(), Log::ERROR);
+      throw $e;
+    }
   }
 }
