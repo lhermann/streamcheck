@@ -11,7 +11,6 @@ require_once __ROOT__ . '/vendor/autoload.php';
 require_once __ROOT__ . '/inc/Router.php';
 date_default_timezone_set('Europe/Berlin');
 session_start();
-header("Access-Control-Allow-Origin: *");
 $router = new Router();
 
 // require controllers
