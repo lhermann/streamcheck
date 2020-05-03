@@ -1,5 +1,6 @@
 <?php
-require_once(__ROOT__ . '/inc/Config.php');
+require_once('Config.php');
+require_once('Log.php');
 
 class Router {
 
@@ -9,12 +10,16 @@ class Router {
     $url = parse_url($_SERVER['REQUEST_URI']);
     $this->method = $_SERVER['REQUEST_METHOD'];
     $this->route = $this->_explodeRoute($url['path']);
-    header('Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS');
+    header('Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS, HEAD');
+    header('Access-Control-Allow-Origin: *');
 
     if ($this->method === 'OPTIONS') exit();
+    if ($this->method === 'HEAD') exit();
   }
 
   public function notFound () {
+    Log::write('404 Not Found', Log::ERROR);
+    Log::write($_SERVER, Log::ERROR);
     http_response_code(404);
     print("404 Not Found");
   }
