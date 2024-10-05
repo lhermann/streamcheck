@@ -32,10 +32,11 @@ class Config {
   // Get filtered config array by method
   public static function getStreamByMethod($method) {
     $streams = self::get('streams');
-    return array_filter(
+    $filtered_array = array_filter(
       $streams,
       function ($item) use ($method) { return $item->method === $method; }
     );
+    return array_shift($filtered_array);
   }
 
   // Get config object by Google client ID

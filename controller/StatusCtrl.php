@@ -8,7 +8,7 @@ class StatusCtrl {
   public static function get () {
     $store = new Store(Store::STATUS);
     return [
-      "live" => count(array_filter($store->getAll(), 'self::_extractValue')) > 0
+      "live" => count(array_filter($store->getAll(), fn ($value) => $value->value)) > 0
     ];
   }
 

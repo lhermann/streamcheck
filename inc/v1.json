@@ -16,6 +16,10 @@
     "method": "GET"
   },
   {
+    "url": "/api/v1/auth/check",
+    "method": "GET"
+  },
+  {
     "url": "/api/v1/status",
     "method": "GET"
   },

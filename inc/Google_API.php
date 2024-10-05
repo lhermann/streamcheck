@@ -3,18 +3,21 @@ require_once('Store.php');
 require_once('Log.php');
 
 class Google_API {
-  private $config, $client, $store, $api;
+  private $config;
+  private $client;
+  private $store;
+  private $api;
 
   public function __construct ($config) {
     $this->config = $config;
     $this->store = new Store(Store::TOKENS);
 
     // Init Client
-    $this->client = new Google_Client();
+    $this->client = new Google\Client();
     $this->client->setApplicationName('Joel Streamcheck');
-    $this->client->setAuthConfig(__ROOT__.'/'.$config->OAuthCredentialsFile);
+    $this->client->setAuthConfig(__ROOT__ . '/' . $config->OAuthCredentialsFile);
     $this->client->setRedirectUri('http://'.$_SERVER['HTTP_HOST'].'/api/v1/auth/callback');
-    $this->client->setScopes(['https://www.googleapis.com/auth/youtube']);
+    $this->client->setScopes([Google\Service\YouTube::YOUTUBE]);
     $this->client->prepareScopes();
     $this->client->setAccessType('offline');
     $this->client->setApprovalPrompt('force');
@@ -63,7 +66,7 @@ class Google_API {
   public function renewToken () {
     try {
       $token = $this->store->getValue($this->config->id);
-      if (!$token || !key_exists('refresh_token', $token)) return;
+      if (!$token || !array_key_exists('refresh_token', $token)) return;
       $new_token = $this->client->fetchAccessTokenWithRefreshToken(
         $token['refresh_token']
       );
@@ -76,6 +79,6 @@ class Google_API {
 
   public function youtube_api () {
     $this->client->authorize();
-    return new Google_Service_YouTube($this->client);
+    return new Google\Service\YouTube($this->client);
   }
 }

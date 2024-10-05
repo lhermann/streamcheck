@@ -32,6 +32,7 @@ $router->get('api/v1',                  'getApiV1', 'json');
 $router->get('api/v1/streams',          'StreamsCtrl::getAll', 'json');
 $router->get('api/v1/streams/:id',      'StreamsCtrl::get', 'json');
 $router->get('api/v1/auth',             'AuthCtrl::get', 'json');
+$router->get('api/v1/auth/check',       'AuthCtrl::check', 'json');
 $router->get('api/v1/auth/callback',    'AuthCtrl::callback', 'json');
 $router->get('api/v1/status',           'StatusCtrl::get', 'json');
 $router->get('api/v1/status/check',     'StatusCtrl::checkAll', 'json');

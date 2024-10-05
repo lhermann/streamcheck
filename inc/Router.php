@@ -61,7 +61,7 @@ class Router {
 
   private function _compareRoute ($route) {
     foreach ($this->_explodeRoute($route) as $key => $str) {
-      if ($str && $str{0} === ':') {
+      if ($str && $str[0] === ':') {
         $this->params[trim($str, ':')] = $this->route[$key];
         continue;
       }
