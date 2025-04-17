@@ -1,6 +1,14 @@
+# Enable rewrite engine
 RewriteEngine On
 RewriteBase /
+
+# Don't rewrite requests to index.php
 RewriteRule ^index\.php$ - [L]
+
+# Serve UI files from dist directory
+RewriteRule ^ui/(.*) dist/$1 [L]
+
+# Route all remaining non-file/directory requests to index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . /index.php [L]
